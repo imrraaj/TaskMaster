@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import useNotes from '../hooks/useNotes'
 import Delete from '../assets/delete.svg'
 import Edit from '../assets/edit.svg'
@@ -8,11 +8,16 @@ import Save from '../assets/save.svg'
 
 export default function TodoItem(props) {
     const todo = props.todo
+    const inputRef = useRef(null);
     const { handleComplete, handleDelete, handleEdit } = useNotes()
     const [editMode, setEditMode] = useState(false)
     const [editedTitle, setEditedTitle] = useState(todo.title)
 
     const handleSave = () => {
+        if(editedTitle.trim() === '') {
+            alert('Please enter a valid task')
+            return
+        }
         handleEdit(todo.id, editedTitle)
         setEditMode(false)
     }
@@ -20,6 +25,14 @@ export default function TodoItem(props) {
     const handleInputChange = (event) => {
         setEditedTitle(event.target.value)
     }
+
+    useEffect(() => {
+        if(editMode) {
+            inputRef.current.focus()
+        }
+    }, [editMode]);
+
+    
     return (
         <div
             className='todo'
@@ -36,6 +49,7 @@ export default function TodoItem(props) {
                         type='text'
                         value={editedTitle}
                         onChange={handleInputChange}
+                        ref={inputRef}
                     />
                     <button className='todo__btn' onClick={handleSave}>
                         <img src={Save} alt='Save' />
